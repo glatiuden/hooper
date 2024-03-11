@@ -127,7 +127,8 @@ export default {
       defaults: {},
       breakpoints: {},
       delta: { x: 0, y: 0 },
-      config: {}
+      config: {},
+      prevDelta: 0
     };
   },
   computed: {
@@ -196,16 +197,16 @@ export default {
         return;
       }
 
-      this.$emit('beforeSlide', {
-        currentSlide: this.currentSlide,
-        slideTo: index
-      });
-
       const { infiniteScroll, transition } = this.config;
       const previousSlide = this.currentSlide;
       const index = infiniteScroll
         ? slideIndex
         : getInRange(slideIndex, this.trimStart, this.slidesCount - this.trimEnd);
+
+      this.$emit('beforeSlide', {
+        currentSlide: this.currentSlide,
+        slideTo: index
+      });
 
       // Notify others if in a group and is the slide event initiator.
       if (this.group && isSource) {
@@ -467,15 +468,31 @@ export default {
       if (now() - this.lastScrollTime < 200) {
         return;
       }
-      // get wheel direction
       this.lastScrollTime = now();
-      const value = event.wheelDelta || -event.deltaY;
-      const delta = sign(value);
-      if (delta === -1) {
-        this.slideNext();
-      }
-      if (delta === 1) {
-        this.slidePrev();
+
+      const slideHandler = () => {
+        if (delta === -1) {
+          this.slideNext();
+        }
+        if (delta === 1) {
+          this.slidePrev();
+        }
+      };
+
+      var deltaY = event.deltaY;
+      var isTrackPad = deltaY && !Number.isInteger(deltaY) ? false : true;
+      var value = event.wheelDelta || -event.deltaY;
+      var absDelta = Math.abs(value);
+
+      var delta = sign(value);
+
+      if (isTrackPad) {
+        if (absDelta > this.prevDelta) {
+          slideHandler();
+        }
+        this.prevDelta = absDelta;
+      } else {
+        slideHandler();
       }
     },
     addGroupListeners() {
@@ -504,7 +521,6 @@ export default {
         this.initialized = true;
       }, this.transition);
     });
-    window.addEventListener('keydown', this.onKeypress.bind(this));
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.update);
@@ -515,7 +531,6 @@ export default {
     if (this.timer) {
       this.timer.stop();
     }
-    window.removeEventListener('keydown', this.onKeypress.bind(this));
   },
   render(h) {
     const body = renderBody.call(this, h);
