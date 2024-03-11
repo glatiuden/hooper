@@ -115,7 +115,7 @@ export default {
       isSliding: false,
       isTouch: false,
       isHover: false,
-      isFocus: false,
+      isFocus: true,
       initialized: false,
       slideWidth: 0,
       slideHeight: 0,
@@ -504,6 +504,7 @@ export default {
         this.initialized = true;
       }, this.transition);
     });
+    window.addEventListener('keydown', this.onKeypress.bind(this));
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.update);
@@ -514,6 +515,7 @@ export default {
     if (this.timer) {
       this.timer.stop();
     }
+    window.removeEventListener('keydown', this.onKeypress.bind(this));
   },
   render(h) {
     const body = renderBody.call(this, h);
