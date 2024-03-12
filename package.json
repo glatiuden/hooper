@@ -7,7 +7,7 @@
   "main": "dist/hooper.js",
   "scripts": {
     "lint": "eslint ./src --fix",
-    "build": "NODE_ENV=production node scripts/build",
+    "build": "rm -rf scripts/build && NODE_ENV=production node scripts/build",
     "deploy": "bash scripts/deploy.sh",
     "dev": "node scripts/watcher",
     "docs:dev": "vuepress dev docs",
@@ -23,7 +23,7 @@
     "babel-eslint": "^10.0.2",
     "babel-jest": "^24.8.0",
     "chalk": "^2.4.2",
-    "eslint": "^6.1.0",
+    "eslint": "5.0.0",
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-vue": "^5.2.3",
@@ -66,6 +66,5 @@
       "git add",
       "jest --maxWorkers=1 --bail --findRelatedTests"
     ]
-  },
-  "dependencies": {}
+  }
 }
